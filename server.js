@@ -1,12 +1,9 @@
 const playlists = require('./Data');
 const express = require('express');
+const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-const cors = require('cors');
-app.use(cors({
-  origin: '*',
-}));
+app.use(cors());
 
 // Serve public folder
 app.use(express.static('public'));

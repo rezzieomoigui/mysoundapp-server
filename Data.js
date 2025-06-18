@@ -1,11 +1,14 @@
-const playlists = [
-     {
+// Data.js
+
+let playlists = [
+  {
     "_id": 1,
     "img_name": "images/song1.jpg",
     "title": "Lavender Dreams",
     "artist": "Aether Bloom",
     "album": "Cosmic Hearts",
-    "genre": "Dream Pop"
+    "genre": "Dream Pop",
+    "spotify_url": ""
   },
   {
     "_id": 2,
@@ -13,7 +16,8 @@ const playlists = [
     "title": "Midnight Rhythm",
     "artist": "Neon Echo",
     "album": "City Lights",
-    "genre": "Synthwave"
+    "genre": "Synthwave",
+    "spotify_url": ""
   },
   {
     "_id": 3,
@@ -21,7 +25,8 @@ const playlists = [
     "title": "Velvet Sky",
     "artist": "Luna Muse",
     "album": "Y2K Revival",
-    "genre": "Alt Pop"
+    "genre": "Alt Pop",
+    "spotify_url": ""
   },
   {
     "_id": 4,
@@ -29,7 +34,8 @@ const playlists = [
     "title": "Starlit Frequencies",
     "artist": "Glitch Venus",
     "album": "Cosmic Pulse",
-    "genre": "Indietronica"
+    "genre": "Indietronica",
+    "spotify_url": ""
   },
   {
     "_id": 5,
@@ -37,7 +43,8 @@ const playlists = [
     "title": "Glamcore",
     "artist": "Digital Siren",
     "album": "Virtual Stage",
-    "genre": "Hyperpop"
+    "genre": "Hyperpop",
+    "spotify_url": ""
   },
   {
     "_id": 6,
@@ -45,7 +52,8 @@ const playlists = [
     "title": "Emo Glow",
     "artist": "Chrome Heart",
     "album": "Crushed Velvet",
-    "genre": "Emo-Pop"
+    "genre": "Emo-Pop",
+    "spotify_url": ""
   },
   {
     "_id": 7,
@@ -53,7 +61,8 @@ const playlists = [
     "title": "Night Drive",
     "artist": "Static Fever",
     "album": "Glass Highway",
-    "genre": "Synth Pop"
+    "genre": "Synth Pop",
+    "spotify_url": ""
   },
   {
     "_id": 8,
@@ -61,7 +70,8 @@ const playlists = [
     "title": "Cyber Romance",
     "artist": "Pixel Darling",
     "album": "Heart.exe",
-    "genre": "Alt-R&B"
+    "genre": "Alt-R&B",
+    "spotify_url": ""
   }
 ];
 

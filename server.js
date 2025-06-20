@@ -1,63 +1,116 @@
-// server.js
-const express = require('express');
-const cors = require('cors');
-const Joi = require('joi');
+const express = require("express");
+const cors = require("cors");
+const mongoose = require("mongoose");
+const multer = require("multer");
+const path = require("path");
+const Joi = require("joi");
+require("dotenv").config();
+
+const Playlist = require("./models/Playlist");
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const playlists = require('./Data');
-
+// Middleware
 app.use(cors());
 app.use(express.json());
+app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // Serve uploaded images
 
+// Connect to MongoDB
+mongoose
+  .connect(process.env.MONGO_URI || "your-mongodb-uri-here", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("✅ MongoDB connected"))
+  .catch((err) => console.error("❌ MongoDB error:", err));
+
+// Multer storage config
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, "uploads/"),
+  filename: (req, file, cb) =>
+    cb(null, Date.now() + path.extname(file.originalname)),
+});
+const upload = multer({ storage });
+
+// Joi validation schema
 const playlistSchema = Joi.object({
-  img_name: Joi.string().required(),
   title: Joi.string().required(),
   artist: Joi.string().required(),
-  album: Joi.string().allow(''),
-  genre: Joi.string().allow(''),
-  spotify_url: Joi.string().uri().allow('')
+  album: Joi.string().allow(""),
+  genre: Joi.string().allow(""),
+  spotify_url: Joi.string().uri().allow(""),
 });
 
-app.get('/api/playlists', (req, res) => {
-  res.json(playlists);
+// Routes
+
+// GET all playlists
+app.get("/api/playlists", async (req, res) => {
+  try {
+    const playlists = await Playlist.find();
+    res.json(playlists);
+  } catch (err) {
+    res.status(500).send("Server error");
+  }
 });
 
-app.post('/api/playlists', (req, res) => {
+// POST new playlist with image
+app.post("/api/playlists", upload.single("img_name"), async (req, res) => {
   const { error } = playlistSchema.validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  const newSong = { _id: Date.now(), ...req.body };
-  playlists.push(newSong);
-  res.json(newSong);
+  try {
+    const newPlaylist = new Playlist({
+      img_name: req.file ? req.file.filename : "",
+      ...req.body,
+    });
+    await newPlaylist.save();
+    res.json(newPlaylist);
+  } catch (err) {
+    res.status(500).send("Server error");
+  }
 });
 
-app.put('/api/playlists/:id', (req, res) => {
-  const id = parseInt(req.params.id);
-  const index = playlists.findIndex(p => p._id === id);
-  if (index === -1) return res.status(404).send("Not found");
-
+// PUT update playlist with optional image
+app.put("/api/playlists/:id", upload.single("img_name"), async (req, res) => {
   const { error } = playlistSchema.validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  playlists[index] = { _id: id, ...req.body };
-  res.json(playlists[index]);
+  try {
+    const updatedData = {
+      ...req.body,
+      ...(req.file && { img_name: req.file.filename }),
+    };
+
+    const updated = await Playlist.findByIdAndUpdate(req.params.id, updatedData, {
+      new: true,
+    });
+    if (!updated) return res.status(404).send("Not found");
+    res.json(updated);
+  } catch (err) {
+    res.status(500).send("Server error");
+  }
 });
 
-app.delete('/api/playlists/:id', (req, res) => {
-  const id = parseInt(req.params.id);
-  const index = playlists.findIndex(p => p._id === id);
-  if (index === -1) return res.status(404).send("Not found");
-
-  playlists.splice(index, 1);
-  res.json({ message: "Deleted", id });
+// DELETE a playlist
+app.delete("/api/playlists/:id", async (req, res) => {
+  try {
+    const deleted = await Playlist.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).send("Not found");
+    res.json({ message: "Deleted", id: req.params.id });
+  } catch (err) {
+    res.status(500).send("Server error");
+  }
 });
 
-app.get('/', (req, res) => {
-  res.send("🎧 Welcome to the MySound API<br>GET /api/playlists — Returns playlist data");
+// Home route
+app.get("/", (req, res) => {
+  res.send(
+    "🎧 Welcome to the MySound API<br>GET /api/playlists — Returns playlist data"
+  );
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
 
